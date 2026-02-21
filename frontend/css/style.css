@@ -1,0 +1,7 @@
+/* Minimal styling & subtle animation */
+.hover-rise{ transition: transform .2s ease, box-shadow .2s ease; }
+.hover-rise:hover{ transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,0.08); }
+.sra-overlay-backdrop{ position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); display:none; }
+.sra-overlay-card{ position: fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; color:#111; border-radius:16px; padding:16px 20px; display:flex; align-items:center; z-index:1100; min-width:280px; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+#loadingOverlay.active .sra-overlay-backdrop{ display:block; }
+#loadingOverlay.active .sra-overlay-card{ opacity:1; pointer-events:auto; }

@@ -1,0 +1,10 @@
+# Java / Maven
+target/
+*.jar
+.env
+*.env
+backend/.env
+# Logs
+*.log
+*.log.gz
+backend/logs/

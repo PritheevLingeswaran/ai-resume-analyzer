@@ -1,0 +1,14 @@
+{
+  "ats_score": 82,
+  "matchedSkills": [
+    "java",
+    "python",
+    "sql"
+  ],
+  "missingSkills": [
+    "docker",
+    "aws"
+  ],
+  "suggestions": "Add Docker and AWS skills to improve employability. Consider quantifying achievements with metrics and mirroring JD keywords.",
+  "summary": "Strong software development background; lacks cloud and containerization expertise."
+}

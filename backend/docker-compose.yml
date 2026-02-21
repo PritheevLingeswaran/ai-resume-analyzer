@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - JAR_FILE=${JAR_FILE:-target/smart-resume-analyzer-backend-1.0.0.jar}
+    image: sra-backend:latest
+    container_name: sra-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SRA_DB_PATH=${DB_PATH:-/app/data/smart_resume_analyzer.db}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  sqlite:
+    image: nouchka/sqlite3
+    container_name: sra-sqlite-cli
+    command: ["tail","-f","/dev/null"]
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

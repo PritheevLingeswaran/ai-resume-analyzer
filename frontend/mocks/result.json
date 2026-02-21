@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "resumeId": 1,
+  "jobId": 1,
+  "ats_score": 75,
+  "matchedSkills": [
+    "java",
+    "spring",
+    "aws"
+  ],
+  "missingSkills": [
+    "kafka"
+  ],
+  "suggestions": "Take a Kafka fundamentals course and add a small streaming project to your resume.",
+  "timestamp": "2025-10-22T10:00:00"
+}
