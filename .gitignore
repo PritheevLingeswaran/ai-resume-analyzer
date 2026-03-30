@@ -1,10 +1,15 @@
-# Java / Maven
-target/
-*.jar
-.env
-*.env
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
 backend/.env
-# Logs
-*.log
-*.log.gz
-backend/logs/
+backend/data/uploads/
+backend/data/*.db
+
+dist/
+build/

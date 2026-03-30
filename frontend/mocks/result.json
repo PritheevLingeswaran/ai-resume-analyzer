@@ -4,13 +4,14 @@
   "jobId": 1,
   "ats_score": 75,
   "matchedSkills": [
-    "java",
-    "spring",
+    "python",
+    "fastapi",
     "aws"
   ],
   "missingSkills": [
-    "kafka"
+    "docker",
+    "postgresql"
   ],
-  "suggestions": "Take a Kafka fundamentals course and add a small streaming project to your resume.",
+  "suggestions": "Add Docker and PostgreSQL project evidence, and include metrics that show reliability, scale, or performance improvements.",
   "timestamp": "2025-10-22T10:00:00"
 }

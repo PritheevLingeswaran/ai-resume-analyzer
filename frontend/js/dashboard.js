@@ -1,5 +1,6 @@
 (function(api, ui){
   const { qs, showToast, showLoading, hideLoading, toggleOtherRole } = ui;
+  const RESULT_SCHEMA_VERSION = '4';
 
   function wireUploader(){
     const input = qs('#resumeFile');
@@ -47,6 +48,7 @@
         const result = await api.analyzeResume({ resumeText, jobDescription, jobRole });
         sessionStorage.setItem('SRA_LAST_RESULT', JSON.stringify(result));
         sessionStorage.setItem('SRA_LAST_ROLE', jobRole);
+        sessionStorage.setItem('SRA_RESULT_SCHEMA_VERSION', RESULT_SCHEMA_VERSION);
         window.location.href = 'results.html';
       }catch(err){
         console.error(err); showToast('Analysis failed: ' + (err.message||'Unknown error'), 'danger');

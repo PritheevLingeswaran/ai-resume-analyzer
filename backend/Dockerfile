@@ -1,10 +1,16 @@
-# Smart Resume Analyzer Backend - Dockerfile
-FROM openjdk:17-jdk-alpine
+FROM python:3.12-slim
+
 WORKDIR /app
-ARG JAR_FILE=target/smart-resume-analyzer-backend-1.0.0.jar
-COPY ${JAR_FILE} /app/app.jar
-RUN mkdir -p /app/data /app/logs
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app ./app
+COPY README.md ./README.md
+COPY .env.example ./.env.example
+
+RUN mkdir -p /app/data/uploads
+
 EXPOSE 8080
-ENV SRA_DB_PATH=/app/data/smart_resume_analyzer.db OPENAI_API_KEY="" JAVA_OPTS=""
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD nc -z localhost 8080 || exit 1
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

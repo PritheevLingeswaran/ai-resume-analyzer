@@ -1,14 +1,15 @@
 {
   "ats_score": 82,
   "matchedSkills": [
-    "java",
     "python",
-    "sql"
+    "sql",
+    "fastapi"
   ],
   "missingSkills": [
     "docker",
-    "aws"
+    "aws",
+    "postgresql"
   ],
-  "suggestions": "Add Docker and AWS skills to improve employability. Consider quantifying achievements with metrics and mirroring JD keywords.",
-  "summary": "Strong software development background; lacks cloud and containerization expertise."
+  "suggestions": "Add Docker, AWS, and PostgreSQL evidence where you have real experience. Quantify delivery impact with metrics and mirror the job description keywords more closely.",
+  "summary": "Strong Python backend profile with good ATS alignment, but the resume still needs stronger cloud and production-platform coverage."
 }

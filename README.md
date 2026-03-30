@@ -1,140 +1,60 @@
-# Smart Resume Analyzer — Full Stack (Frontend + Backend + Docker)
+# AI Resume Analyzer
 
-A complete, production‑ready project: **Bootstrap frontend**, **Java 17 + Spring Boot backend**, **SQLite** DB, **OpenNLP** + **OpenAI** integration, **Log4j2** logging, **JUnit 5** tests, and **Docker** containerization.
+AI Resume Analyzer is a full-stack resume scoring and ATS-style review platform built with a static frontend and a Python FastAPI backend.
 
-## Folder Structure
+## Features
+
+- Upload PDF and DOCX resumes
+- Extract resume text automatically
+- Analyze resume-job fit with ATS-style scoring
+- Show matched skills, missing skills, strengths, risks, and score breakdowns
+- Generate advanced AI-oriented audit sections for role targeting
+- Serve both frontend and backend from one FastAPI app
+- Deploy with Render or Docker
+
+## Project Structure
+
+- `frontend/` - static HTML, CSS, and JavaScript UI
+- `backend/` - FastAPI API, analysis engine, persistence, and document parsing
+
+## Local Run
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 ```
-smart-resume-analyzer/
-├── frontend/
-│   ├── index.html
-│   ├── dashboard.html
-│   ├── results.html
-│   ├── about.html
-│   ├── css/
-│   ├── js/
-│   └── mocks/
-├── backend/
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── .env
-│   ├── logs/
-│   ├── data/
-│   ├── pom.xml
-│   └── src/
-│       ├── main/java/com/sra/backend/...
-│       ├── main/resources/
-│       └── test/java/com/sra/backend/...
-└── README.md
-```
 
----
+Open:
 
-## Backend (Java + Maven)
+- Frontend: `http://localhost:8080/index.html`
+- Dashboard: `http://localhost:8080/dashboard.html`
+- Results: `http://localhost:8080/results.html`
+- API docs: `http://localhost:8080/docs`
 
-### Build & Test
+## Environment Variables
+
+Configured through `backend/.env`.
+
+Common keys:
+
+- `SRA_OPENAI_API_KEY`
+- `SRA_OPENAI_MODEL`
+- `SRA_ENABLE_LLM_RECOMMENDATIONS`
+- `SRA_DATABASE_URL`
+
+## Deployment
+
+### Render
+
+This repo includes `render.yaml` at the root. Connect the GitHub repo in Render and set the required environment variables in the Render dashboard.
+
+### Docker
+
 ```bash
 cd backend
-mvn clean test
-mvn clean package
+docker build -t ai-resume-analyzer .
+docker run -p 8080:8080 --env-file .env ai-resume-analyzer
 ```
-The JAR lands in `backend/target/`.
-
-### Run locally
-```bash
-java -jar target/smart-resume-analyzer-backend-1.0.0.jar
-```
-Server at `http://localhost:8080`.
-
-### Environment
-- `SRA_DB_PATH` — SQLite path (default: `data/smart_resume_analyzer.db`)
-- `OPENAI_API_KEY` — optional: enables real OpenAI suggestions (fallback otherwise)
-- `spring.servlet.multipart.max-file-size` — file upload limit
-
-### Logging
-- **Console** and **file** logs (`backend/logs/app.log`, rotated) via Log4j2.
-
-### API Endpoints
-- `POST /api/upload` — multipart `file` (PDF/DOCX ≤ 5MB) → `{ fileName, extractedText, resumeId }`
-- `POST /api/analyze` — JSON `{ resumeText, jobDescription, jobRole }` → `{ ats_score, matchedSkills, missingSkills, suggestions, summary, resultId }`
-- `GET  /api/result/{id}` — retrieve stored result
-- `GET  /api/jobs` — predefined roles
-
-**Errors**: returns JSON `{ "error": "..." }` with appropriate HTTP code (400/500).
-
----
-
-## Docker
-
-### Compose (recommended)
-```bash
-cd backend
-cp .env .env.local  # or edit .env directly
-docker-compose up --build -d
-```
-- Backend: `http://localhost:8080`
-- Data volume: `./data` ↔ `/app/data`
-- Logs: `./logs` ↔ `/app/logs`
-
-### Health Check
-```bash
-docker logs -f sra-backend
-```
-
-### Inspect DB
-```bash
-docker exec -it sra-sqlite-cli sqlite3 /data/smart_resume_analyzer.db ".tables"
-```
-
-### Stop
-```bash
-docker-compose down
-```
-
----
-
-## Frontend (HTML/CSS/JS + Bootstrap)
-
-### Run locally (static server example)
-Use any static server (VSCode Live Server, `python -m http.server`, etc.). Example:
-```bash
-cd frontend
-python -m http.server 5500
-```
-Open `http://localhost:5500/index.html`.
-
-**Point the frontend to Docker backend**:
-- Default base URL is `http://localhost:8080` if served from `localhost`.
-- Override: `?api=http://localhost:8080` or `localStorage.setItem('SRA_BASE_URL','http://localhost:8080')`
-- Offline mocks: `?mocks=1` or `localStorage.setItem('SRA_USE_MOCKS','true')`
-
-### UX Flow
-1) Upload resume (PDF/DOCX) → extracted text appears.  
-2) Paste JD + choose role (or “Other”).  
-3) Click **Analyze** → loading overlay → results page updates with ATS, matched/missing, suggestions, summary.  
-4) Download JSON / PDF print.
-
----
-
-## Testing
-
-### Unit tests (JUnit 5 + Mockito)
-- ResumeService: Tika extraction from in‑memory DOCX.
-- NLPService: tokenization + keyword extraction.
-- AIService: adapter & fallback paths (no real network).
-- AnalysisService: ATS score + matched/missing + validation.
-- DAO: SQLite CRUD (file DB under `target/test-db/`).
-
-Run:
-```bash
-cd backend
-mvn clean test
-```
-
----
-
-## Notes
-- To enable POS tagging, place `en-pos-maxent.bin` under `backend/src/main/resources/models/`.
-- CORS is allowed for all origins (`@CrossOrigin("*")`) to simplify local dev. Tighten in production.
-- For production hosting, consider Nginx as a reverse proxy (serve frontend + proxy `/api/*` to backend).
-
-Enjoy building 🚀
