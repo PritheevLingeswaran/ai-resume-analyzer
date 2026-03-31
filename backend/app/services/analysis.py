@@ -565,6 +565,106 @@ def score_formatting(resume_text: str) -> float:
     return max(0.0, 100.0 - too_long_penalty - all_caps_penalty - dense_penalty)
 
 
+def compute_semantic_fit(resume_text: str, job_description: str) -> float:
+    resume_tokens = set(tokenize(resume_text))
+    job_tokens = set(tokenize(job_description))
+    if not job_tokens:
+        return 0.0
+    overlap = len(resume_tokens & job_tokens)
+    lexical = overlap / max(1, len(job_tokens)) * 100.0
+    semantic_bonus = 0.0
+    boosted_pairs = [
+        ("containerization", "docker"),
+        ("deployment", "model"),
+        ("monitor", "performance"),
+        ("data", "pipeline"),
+        ("algorithm", "design"),
+        ("machine", "learning"),
+    ]
+    lowered_resume = resume_text.lower()
+    lowered_jd = job_description.lower()
+    for left, right in boosted_pairs:
+        if left in lowered_resume and right in lowered_jd:
+            semantic_bonus += 3.5
+    return min(100.0, lexical + semantic_bonus)
+
+
+def build_section_insights(resume_text: str, job_description: str) -> list[dict[str, object]]:
+    lowered = resume_text.lower()
+    jd_lowered = job_description.lower()
+    sections = [
+        (
+            "Summary",
+            extract_section_block(lowered, "summary", ("technical skills", "skills", "projects", "experience")),
+            "Focuses on role targeting and first-impression clarity.",
+        ),
+        (
+            "Skills",
+            extract_section_block(lowered, "technical skills", ("projects", "experience", "achievements")),
+            "This is the highest-leverage ATS section for explicit keyword matching.",
+        ),
+        (
+            "Projects",
+            extract_section_block(lowered, "projects", ("achievements", "education", "certifications")),
+            "Projects are where production evidence and ownership become credible.",
+        ),
+        (
+            "Experience Signals",
+            lowered,
+            "Measures business impact, metrics, and delivery language across the document.",
+        ),
+    ]
+    insights: list[dict[str, object]] = []
+    for title, block, commentary in sections:
+        score = section_match_score(block, jd_lowered)
+        highlights = section_highlights(block)
+        insights.append(
+            {
+                "title": title,
+                "score": score,
+                "commentary": commentary,
+                "highlights": highlights,
+            }
+        )
+    return insights
+
+
+def extract_section_block(text: str, start_keyword: str, end_keywords: tuple[str, ...]) -> str:
+    start = text.find(start_keyword)
+    if start == -1:
+        return ""
+    end_positions = [text.find(keyword, start + len(start_keyword)) for keyword in end_keywords if text.find(keyword, start + len(start_keyword)) != -1]
+    end = min(end_positions) if end_positions else len(text)
+    return text[start:end]
+
+
+def section_match_score(section_text: str, job_description: str) -> int:
+    if not section_text:
+        return 25
+    section_tokens = set(tokenize(section_text))
+    job_tokens = set(tokenize(job_description))
+    overlap = len(section_tokens & job_tokens)
+    raw = min(100, 35 + overlap * 4)
+    return max(25, raw)
+
+
+def section_highlights(section_text: str) -> list[str]:
+    if not section_text:
+        return ["Section is missing or too thin to contribute strongly to ATS screening."]
+    highlights: list[str] = []
+    if re.search(r"\bpython\b", section_text):
+        highlights.append("Python is clearly visible.")
+    if re.search(r"\b(pytorch|tensorflow|scikit-learn|pandas)\b", section_text):
+        highlights.append("Core ML frameworks are explicitly listed.")
+    if re.search(r"\b\d+%|\b\d+\+?|\bp99\b", section_text):
+        highlights.append("Quantified results are present.")
+    if re.search(r"\b(docker|ci/cd|github actions|prometheus|kafka)\b", section_text):
+        highlights.append("Production engineering signals are present.")
+    if not highlights:
+        highlights.append("This section could use more explicit, job-aligned keywords.")
+    return highlights[:3]
+
+
 def tokenize(text: str) -> list[str]:
     return re.findall(r"[a-zA-Z][a-zA-Z0-9.+#/-]*", text.lower())
 
@@ -784,6 +884,11 @@ def build_score_explanations(breakdown: dict[str, float], matched: list[str], mi
                 if matched
                 else "Keyword coverage is still weak and needs clearer alignment with the job description."
             ),
+        },
+        {
+            "title": "Semantic Fit",
+            "score": round(breakdown.get("semanticFit", 0)),
+            "commentary": "Estimates how strongly the resume’s language and project signals align with the job description beyond direct keyword repetition.",
         },
         {
             "title": "Section Quality",

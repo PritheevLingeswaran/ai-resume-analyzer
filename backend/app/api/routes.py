@@ -5,15 +5,30 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import UPLOAD_DIR, get_settings
 from app.db.database import get_db
 from app.db.models import AnalysisResult, JobPosting, Resume
-from app.schemas import AnalyzeRequest, AnalysisBreakdown, AnalysisResponse, AuditSection, HealthResponse, ScoreExplanation, SkillGroup, UploadResponse
-from app.services.analysis import analyze_resume, build_audit_sections
+from app.schemas import (
+    AnalyzeRequest,
+    AnalysisBreakdown,
+    AnalysisResponse,
+    AuditSection,
+    HealthResponse,
+    ReportListItem,
+    ReportMeta,
+    RewriteResponse,
+    ScoreExplanation,
+    SectionInsight,
+    SkillGroup,
+    UploadResponse,
+)
+from app.services.analysis import analyze_resume, build_audit_sections, build_section_insights, compute_semantic_fit
 from app.services.document_parser import DocumentParserError, extract_text
 from app.services.llm import maybe_refine_with_llm
+from app.services.rewrite import build_rewrite_suggestions
 
 
 router = APIRouter()
@@ -109,6 +124,64 @@ def get_result(result_id: int, db: Session = Depends(get_db)):
     return _serialize_result(result)
 
 
+@router.get("/reports", response_model=list[ReportListItem])
+def list_reports(limit: int = 10, db: Session = Depends(get_db)):
+    settings = get_settings()
+    limit = max(1, min(50, limit))
+    stmt = (
+        select(AnalysisResult)
+        .order_by(AnalysisResult.created_at.desc())
+        .limit(limit)
+    )
+    results = db.scalars(stmt).all()
+    items: list[ReportListItem] = []
+    for result in results:
+        audit_payload = build_audit_sections(
+            role=result.job.role if result.job else None,
+            ats_score=round(result.ats_score),
+            matched=_deserialize_list(result.matched_skills),
+            missing=_deserialize_list(result.missing_skills),
+            strengths=_deserialize_list(result.strengths),
+            risks=_deserialize_list(result.risks),
+            breakdown={
+                "keywordCoverage": round(result.keyword_coverage, 2),
+                "sectionScore": round(result.section_score, 2),
+                "impactScore": round(result.impact_score, 2),
+                "formattingScore": round(result.formatting_score, 2),
+                "semanticFit": compute_semantic_fit(
+                    result.resume.extracted_text if result.resume else "",
+                    result.job.description if result.job else "",
+                ),
+            },
+            suggestions=result.suggestions,
+        )
+        items.append(
+            ReportListItem(
+                id=result.id,
+                role=result.job.role if result.job else None,
+                ats_score=round(result.ats_score),
+                summaryHeadline=audit_payload["summaryHeadline"],
+                createdAt=result.created_at,
+                shareUrl=_share_url(settings, result.id),
+            )
+        )
+    return items
+
+
+@router.get("/result/{result_id}/rewrite", response_model=RewriteResponse)
+def rewrite_report(result_id: int, db: Session = Depends(get_db)):
+    result = db.get(AnalysisResult, result_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Analysis result not found.")
+    payload = build_rewrite_suggestions(
+        resume_text=result.resume.extracted_text if result.resume else "",
+        job_description=result.job.description if result.job else "",
+        role=result.job.role if result.job else None,
+        missing_skills=_deserialize_list(result.missing_skills),
+    )
+    return RewriteResponse(**payload)
+
+
 def _deserialize_list(raw: str) -> list[str]:
     try:
         value = json.loads(raw or "[]")
@@ -118,13 +191,19 @@ def _deserialize_list(raw: str) -> list[str]:
 
 
 def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
+    settings = get_settings()
     matched = _deserialize_list(result.matched_skills)
     missing = _deserialize_list(result.missing_skills)
+    semantic_fit = compute_semantic_fit(
+        result.resume.extracted_text if result.resume else "",
+        result.job.description if result.job else "",
+    )
     breakdown = {
         "keywordCoverage": round(result.keyword_coverage, 2),
         "sectionScore": round(result.section_score, 2),
         "impactScore": round(result.impact_score, 2),
         "formattingScore": round(result.formatting_score, 2),
+        "semanticFit": round(semantic_fit, 2),
     }
     audit_payload = build_audit_sections(
         role=result.job.role if result.job else None,
@@ -135,6 +214,10 @@ def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
         risks=_deserialize_list(result.risks),
         breakdown=breakdown,
         suggestions=result.suggestions,
+    )
+    section_payload = build_section_insights(
+        resume_text=result.resume.extracted_text if result.resume else "",
+        job_description=result.job.description if result.job else "",
     )
     return AnalysisResponse(
         id=result.id,
@@ -163,5 +246,15 @@ def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
             riskHighlights=audit_payload["riskHighlights"],
             suggestionBullets=audit_payload["suggestionBullets"],
         ),
+        sections=[SectionInsight(**entry) for entry in section_payload],
+        meta=ReportMeta(
+            shareUrl=_share_url(settings, result.id),
+            generatedForRole=result.job.role if result.job else None,
+            createdAt=result.created_at,
+        ),
         timestamp=result.created_at,
     )
+
+
+def _share_url(settings, result_id: int) -> str:
+    return f"{settings.public_app_url.rstrip('/')}/results.html?id={result_id}"

@@ -1,6 +1,6 @@
 (function(api, ui){
   const { qs, showToast, showLoading, hideLoading, toggleOtherRole } = ui;
-  const RESULT_SCHEMA_VERSION = '4';
+  const RESULT_SCHEMA_VERSION = '6';
 
   function wireUploader(){
     const input = qs('#resumeFile');
@@ -56,5 +56,31 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', ()=>{ wireUploader(); wireAnalyze(); });
+  async function loadRecentReports(){
+    const container = qs('#recentReports');
+    if(!container) return;
+    try{
+      const reports = await api.getReports(6);
+      if(!reports.length){
+        container.innerHTML = `<div class="text-secondary small">No saved reports yet. Run your first analysis to populate history.</div>`;
+        return;
+      }
+      container.innerHTML = reports.map(report => `
+        <a class="sra-recent-item" href="/results.html?id=${report.id}">
+          <div>
+            <div class="fw-semibold">${report.role || 'Untitled Role'}</div>
+            <div class="small text-secondary">${report.summaryHeadline}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-semibold">${report.ats_score}%</div>
+            <div class="small text-secondary">${new Date(report.createdAt).toLocaleDateString()}</div>
+          </div>
+        </a>
+      `).join('');
+    }catch(err){
+      container.innerHTML = `<div class="text-secondary small">Recent reports are unavailable right now.</div>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{ wireUploader(); wireAnalyze(); loadRecentReports(); });
 })(window.SRA_API, window.SRA_UI);

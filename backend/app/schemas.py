@@ -23,6 +23,7 @@ class AnalysisBreakdown(BaseModel):
     sectionScore: float
     impactScore: float
     formattingScore: float
+    semanticFit: float
 
 
 class SkillGroup(BaseModel):
@@ -50,6 +51,42 @@ class AuditSection(BaseModel):
     suggestionBullets: list[str]
 
 
+class SectionInsight(BaseModel):
+    title: str
+    score: int
+    commentary: str
+    highlights: list[str]
+
+
+class ReportMeta(BaseModel):
+    shareUrl: str
+    generatedForRole: str | None
+    createdAt: datetime
+
+
+class RewriteSuggestion(BaseModel):
+    title: str
+    before: str
+    after: str
+    rationale: str
+
+
+class RewriteResponse(BaseModel):
+    role: str | None
+    summaryRewrite: str
+    headlineOptions: list[str]
+    suggestions: list[RewriteSuggestion]
+
+
+class ReportListItem(BaseModel):
+    id: int
+    role: str | None
+    ats_score: int
+    summaryHeadline: str
+    createdAt: datetime
+    shareUrl: str
+
+
 class AnalysisResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -65,6 +102,8 @@ class AnalysisResponse(BaseModel):
     risks: list[str]
     breakdown: AnalysisBreakdown
     audit: AuditSection
+    sections: list[SectionInsight]
+    meta: ReportMeta
     timestamp: datetime
 
 

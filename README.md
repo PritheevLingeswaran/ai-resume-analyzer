@@ -44,12 +44,15 @@ Common keys:
 - `SRA_OPENAI_MODEL`
 - `SRA_ENABLE_LLM_RECOMMENDATIONS`
 - `SRA_DATABASE_URL`
+- `SRA_PUBLIC_APP_URL`
 
 ## Deployment
 
 ### Render
 
 This repo includes `render.yaml` at the root. Connect the GitHub repo in Render and set the required environment variables in the Render dashboard.
+
+Set `SRA_PUBLIC_APP_URL` to your deployed frontend URL so share links point to the public site.
 
 ### Docker
 

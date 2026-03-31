@@ -1,6 +1,7 @@
 (function(api, ui){
   const { qs, showToast, setProgress } = ui;
-  const RESULT_SCHEMA_VERSION = '4';
+  const RESULT_SCHEMA_VERSION = '6';
+  let currentResult = null;
 
   function asList(value){
     if(Array.isArray(value)) return value.filter(Boolean);
@@ -80,12 +81,57 @@
     `).join('');
   }
 
+  function renderSectionInsights(entries){
+    const el = qs('#sectionInsights'); if(!el) return;
+    const list = asList(entries);
+    el.innerHTML = list.map(entry => `
+      <div class="sra-commentary-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-semibold small">${entry.title}</span>
+          <span class="small text-secondary">${formatScore(entry.score)} / 100</span>
+        </div>
+        <p class="small text-secondary mt-1 mb-2">${entry.commentary}</p>
+        <div>${(entry.highlights || []).map(item => `<span class="badge text-bg-light border text-dark me-2 mb-2">${item}</span>`).join('')}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderRewritePanel(payload){
+    const el = qs('#rewritePanel'); if(!el) return;
+    if(!payload){
+      el.textContent = 'Rewrite help is unavailable right now.';
+      return;
+    }
+    el.innerHTML = `
+      <div class="mb-3">
+        <div class="fw-semibold mb-1">Premium Summary Rewrite</div>
+        <div class="small text-secondary">${payload.summaryRewrite}</div>
+      </div>
+      <div class="mb-3">
+        <div class="fw-semibold mb-1">Headline Options</div>
+        <ul class="sra-list mb-0">${(payload.headlineOptions || []).map(item => `<li>${item}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <div class="fw-semibold mb-2">Suggested Rewrites</div>
+        ${(payload.suggestions || []).map(item => `
+          <div class="sra-rewrite-card">
+            <div class="fw-semibold small mb-2">${item.title}</div>
+            <div class="small text-secondary mb-1"><strong>Before:</strong> ${item.before}</div>
+            <div class="small mb-1"><strong>After:</strong> ${item.after}</div>
+            <div class="small text-secondary"><strong>Why:</strong> ${item.rationale}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
   function formatScore(value){
     return Math.max(0, Math.min(100, Number(value) || 0)).toFixed(0);
   }
 
   function hydrate(result){
     if(!result){ showToast('No analysis found. Run analysis first.', 'warning'); return; }
+    currentResult = result;
     setProgress('#atsProgress', result.ats_score ?? result.atsScore ?? 0);
     renderSkillGroups('#matchedGroups', result.audit?.matchedGroups || [], 'No grouped strengths available yet.', 'success');
     renderSkillGroups('#missingGroups', result.audit?.missingGroups || [], 'No grouped gaps available yet.', 'danger');
@@ -104,6 +150,30 @@
     renderList('#risksList', result.audit?.riskHighlights?.length ? result.audit.riskHighlights : result.risks || [], 'No major risks detected in the current analysis.');
     renderBreakdown(result.breakdown || {});
     renderScoreCommentary(result.audit?.scoreExplanations || []);
+    renderSectionInsights(result.sections || []);
+  }
+
+  async function copyShareLink(){
+    const shareUrl = currentResult?.meta?.shareUrl || window.location.href;
+    try{
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('Share link copied to clipboard.', 'success');
+    }catch(err){
+      showToast('Could not copy share link.', 'warning');
+    }
+  }
+
+  async function loadRewriteHelp(){
+    if(!currentResult?.id) return showToast('Run an analysis first.', 'warning');
+    const panel = qs('#rewritePanel');
+    if(panel) panel.textContent = 'Loading rewrite suggestions...';
+    try{
+      const payload = await api.getRewriteSuggestions(currentResult.id);
+      renderRewritePanel(payload);
+    }catch(err){
+      renderRewritePanel(null);
+      showToast('Failed to load rewrite help.', 'danger');
+    }
   }
 
   function downloadJSON(){
@@ -159,5 +229,7 @@
     }
     qs('#btnDownloadJSON')?.addEventListener('click', downloadJSON);
     qs('#btnDownloadPDF')?.addEventListener('click', downloadPDF);
+    qs('#btnCopyShare')?.addEventListener('click', copyShareLink);
+    qs('#btnLoadRewrite')?.addEventListener('click', loadRewriteHelp);
   });
 })(window.SRA_API, window.SRA_UI);

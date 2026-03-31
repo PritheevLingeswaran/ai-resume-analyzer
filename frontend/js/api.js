@@ -59,5 +59,13 @@
     }
   }
 
-  scope.SRA_API = { uploadResume, analyzeResume, getResult };
+  async function getReports(limit=8){
+    return await http(`/api/reports?limit=${encodeURIComponent(limit)}`);
+  }
+
+  async function getRewriteSuggestions(id){
+    return await http(`/api/result/${id}/rewrite`);
+  }
+
+  scope.SRA_API = { uploadResume, analyzeResume, getResult, getReports, getRewriteSuggestions };
 })(window);
