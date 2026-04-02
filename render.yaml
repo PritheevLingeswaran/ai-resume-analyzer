@@ -1,10 +1,9 @@
 services:
   - type: web
-    name: smart-resume-analyzer
-    env: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    name: ai-resume-analyzer
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     envVars:
       - key: SRA_APP_ENV
@@ -13,3 +12,5 @@ services:
         value: "true"
       - key: SRA_DATABASE_URL
         value: sqlite:///./data/smart_resume_analyzer.db
+      - key: SRA_PUBLIC_APP_URL
+        value: https://ai-resume-analyzer-bk7j.onrender.com
