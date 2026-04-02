@@ -61,3 +61,13 @@ cd backend
 docker build -t ai-resume-analyzer .
 docker run -p 8080:8080 --env-file .env ai-resume-analyzer
 ```
+
+### Firebase Hosting
+
+This repo includes Firebase Hosting config for the static frontend in `frontend/`.
+
+```bash
+npx firebase-tools deploy --only hosting
+```
+
+The hosted frontend defaults to mock API responses through `frontend/js/deploy-config.js`. To connect it to a real backend later, set `BASE_URL` in that file to your deployed API origin and redeploy.
