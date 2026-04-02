@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -85,7 +85,7 @@ async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_
 
 
 @router.post("/analyze", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
-def analyze(payload: AnalyzeRequest, db: Session = Depends(get_db)):
+def analyze(payload: AnalyzeRequest, request: Request, db: Session = Depends(get_db)):
     settings = get_settings()
 
     resume = Resume(
@@ -113,19 +113,19 @@ def analyze(payload: AnalyzeRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(result)
 
-    return _serialize_result(result)
+    return _serialize_result(result, request)
 
 
 @router.get("/result/{result_id}", response_model=AnalysisResponse)
-def get_result(result_id: int, db: Session = Depends(get_db)):
+def get_result(result_id: int, request: Request, db: Session = Depends(get_db)):
     result = db.get(AnalysisResult, result_id)
     if not result:
         raise HTTPException(status_code=404, detail="Analysis result not found.")
-    return _serialize_result(result)
+    return _serialize_result(result, request)
 
 
 @router.get("/reports", response_model=list[ReportListItem])
-def list_reports(limit: int = 10, db: Session = Depends(get_db)):
+def list_reports(request: Request, limit: int = 10, db: Session = Depends(get_db)):
     settings = get_settings()
     limit = max(1, min(50, limit))
     stmt = (
@@ -162,7 +162,7 @@ def list_reports(limit: int = 10, db: Session = Depends(get_db)):
                 ats_score=round(result.ats_score),
                 summaryHeadline=audit_payload["summaryHeadline"],
                 createdAt=result.created_at,
-                shareUrl=_share_url(settings, result.id),
+                shareUrl=_share_url(settings, result.id, request),
             )
         )
     return items
@@ -190,7 +190,7 @@ def _deserialize_list(raw: str) -> list[str]:
         return []
 
 
-def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
+def _serialize_result(result: AnalysisResult, request: Request) -> AnalysisResponse:
     settings = get_settings()
     matched = _deserialize_list(result.matched_skills)
     missing = _deserialize_list(result.missing_skills)
@@ -248,7 +248,7 @@ def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
         ),
         sections=[SectionInsight(**entry) for entry in section_payload],
         meta=ReportMeta(
-            shareUrl=_share_url(settings, result.id),
+            shareUrl=_share_url(settings, result.id, request),
             generatedForRole=result.job.role if result.job else None,
             createdAt=result.created_at,
         ),
@@ -256,5 +256,22 @@ def _serialize_result(result: AnalysisResult) -> AnalysisResponse:
     )
 
 
-def _share_url(settings, result_id: int) -> str:
-    return f"{settings.public_app_url.rstrip('/')}/results.html?id={result_id}"
+def _share_url(settings, result_id: int, request: Request) -> str:
+    configured_base = settings.public_app_url.rstrip("/")
+    if _is_public_base_url(configured_base):
+        base_url = configured_base
+    else:
+        base_url = _request_origin(request)
+    return f"{base_url}/results.html?id={result_id}"
+
+
+def _is_public_base_url(value: str) -> bool:
+    return bool(value) and "localhost" not in value and "127.0.0.1" not in value
+
+
+def _request_origin(request: Request) -> str:
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    forwarded_host = request.headers.get("x-forwarded-host")
+    host = forwarded_host or request.headers.get("host") or request.url.netloc
+    scheme = forwarded_proto or request.url.scheme
+    return f"{scheme}://{host}".rstrip("/")

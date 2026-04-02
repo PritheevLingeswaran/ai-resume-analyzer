@@ -17,7 +17,11 @@ def maybe_refine_with_llm(
     try:
         from openai import OpenAI
 
-        client = OpenAI(api_key=settings.openai_api_key)
+        client = OpenAI(
+            api_key=settings.openai_api_key,
+            timeout=settings.openai_timeout_seconds,
+            max_retries=0,
+        )
         prompt = (
             "You are helping improve a resume for ATS and recruiter review.\n"
             f"Target role: {job_role or 'Not specified'}\n\n"

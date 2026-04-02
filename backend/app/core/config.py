@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
+    openai_timeout_seconds: float = 8.0
     enable_llm_recommendations: bool = True
     public_app_url: str = "http://localhost:8080"
 
