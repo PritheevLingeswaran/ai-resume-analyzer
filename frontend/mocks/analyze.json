@@ -1,15 +1,162 @@
 {
+  "id": 101,
+  "resumeId": 201,
+  "jobId": 301,
   "ats_score": 82,
   "matchedSkills": [
-    "python",
-    "sql",
-    "fastapi"
+    "Python",
+    "SQL",
+    "FastAPI"
   ],
   "missingSkills": [
-    "docker",
-    "aws",
-    "postgresql"
+    "Docker",
+    "AWS",
+    "PostgreSQL"
   ],
   "suggestions": "Add Docker, AWS, and PostgreSQL evidence where you have real experience. Quantify delivery impact with metrics and mirror the job description keywords more closely.",
-  "summary": "Strong Python backend profile with good ATS alignment, but the resume still needs stronger cloud and production-platform coverage."
+  "summary": "Strong Python backend profile with good ATS alignment, but the resume still needs stronger cloud and production-platform coverage.",
+  "strengths": [
+    "Clear backend focus with Python and API development experience.",
+    "Core resume formatting looks readable and ATS-friendly.",
+    "The profile already shows several relevant backend technologies."
+  ],
+  "risks": [
+    "Cloud and deployment signals are still too light for stronger backend/platform roles.",
+    "The resume needs clearer production impact metrics to feel senior enough."
+  ],
+  "breakdown": {
+    "keywordCoverage": 78,
+    "sectionScore": 72,
+    "impactScore": 64,
+    "formattingScore": 88,
+    "semanticFit": 76
+  },
+  "audit": {
+    "matchedGroups": [
+      {
+        "title": "Core Backend",
+        "items": [
+          "Python",
+          "FastAPI"
+        ]
+      },
+      {
+        "title": "Data Layer",
+        "items": [
+          "SQL"
+        ]
+      }
+    ],
+    "missingGroups": [
+      {
+        "title": "Cloud & Infrastructure",
+        "items": [
+          "Docker",
+          "AWS"
+        ]
+      },
+      {
+        "title": "Persistence",
+        "items": [
+          "PostgreSQL"
+        ]
+      }
+    ],
+    "quickWins": [
+      "Add one project bullet showing containerization or deployment ownership.",
+      "Mention PostgreSQL explicitly if you have used it in projects or internships.",
+      "Quantify backend outcomes such as latency, throughput, reliability, or time saved."
+    ],
+    "finalVerdict": "This resume is directionally strong for a backend role, but it will perform better once infrastructure and database ownership are made more explicit.",
+    "scoreExplanations": [
+      {
+        "title": "Keyword Coverage",
+        "score": 78,
+        "commentary": "Important backend terms are present, but a few role-defining tools are still missing."
+      },
+      {
+        "title": "Semantic Fit",
+        "score": 76,
+        "commentary": "The language broadly matches a backend job description, especially around Python and APIs."
+      },
+      {
+        "title": "Section Quality",
+        "score": 72,
+        "commentary": "The document is organized well enough, but project and summary sections could be sharper."
+      },
+      {
+        "title": "Impact Score",
+        "score": 64,
+        "commentary": "The resume needs stronger metrics and ownership phrasing to fully sell delivery impact."
+      },
+      {
+        "title": "Formatting",
+        "score": 88,
+        "commentary": "Layout and readability are solid for both ATS parsing and recruiter scanning."
+      }
+    ],
+    "atsRiskLevel": "Moderate ATS Risk",
+    "summaryHeadline": "Strong Backend Potential",
+    "priorityGapHeadline": "Highest-priority gaps for this role: Docker, AWS, PostgreSQL",
+    "strengthHighlights": [
+      "Python and FastAPI are already visible in a role-relevant way.",
+      "The resume communicates a clear backend direction instead of feeling generic.",
+      "Formatting is clean and readable."
+    ],
+    "riskHighlights": [
+      "Infrastructure and cloud evidence is thinner than the role likely expects.",
+      "Database depth is implied less clearly than it should be.",
+      "Impact metrics are not yet doing enough persuasive work."
+    ],
+    "suggestionBullets": [
+      "Add Docker, AWS, and PostgreSQL evidence where you have real experience.",
+      "Quantify delivery impact with metrics and mirror the job description keywords more closely.",
+      "Push the strongest backend and deployment work closer to the top of the resume."
+    ]
+  },
+  "sections": [
+    {
+      "title": "Summary",
+      "score": 68,
+      "commentary": "The opening direction is promising, but it should be more role-specific and outcome-oriented.",
+      "highlights": [
+        "Make backend ownership explicit.",
+        "Name target stack earlier."
+      ]
+    },
+    {
+      "title": "Skills",
+      "score": 81,
+      "commentary": "Core backend skills are visible, but the missing infrastructure stack lowers completeness.",
+      "highlights": [
+        "Python",
+        "FastAPI",
+        "SQL"
+      ]
+    },
+    {
+      "title": "Projects",
+      "score": 70,
+      "commentary": "Projects support the backend story, but they need more production detail and measurable outcomes.",
+      "highlights": [
+        "Add deployment evidence.",
+        "Quantify performance gains."
+      ]
+    },
+    {
+      "title": "Experience Signals",
+      "score": 64,
+      "commentary": "Impact and ownership language are present, but still lighter than ideal for stronger shortlisting.",
+      "highlights": [
+        "Use stronger action verbs.",
+        "Add metrics where possible."
+      ]
+    }
+  ],
+  "meta": {
+    "shareUrl": "https://resumeai-abe3m.web.app/results.html?id=101",
+    "generatedForRole": "Backend Developer",
+    "createdAt": "2026-04-02T13:30:00"
+  },
+  "timestamp": "2026-04-02T13:30:00"
 }

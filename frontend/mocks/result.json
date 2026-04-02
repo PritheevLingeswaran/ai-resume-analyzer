@@ -1,17 +1,157 @@
 {
-  "id": 1,
-  "resumeId": 1,
-  "jobId": 1,
+  "id": 102,
+  "resumeId": 202,
+  "jobId": 302,
   "ats_score": 75,
   "matchedSkills": [
-    "python",
-    "fastapi",
-    "aws"
+    "Python",
+    "FastAPI",
+    "AWS"
   ],
   "missingSkills": [
-    "docker",
-    "postgresql"
+    "Docker",
+    "PostgreSQL"
   ],
   "suggestions": "Add Docker and PostgreSQL project evidence, and include metrics that show reliability, scale, or performance improvements.",
-  "timestamp": "2025-10-22T10:00:00"
+  "summary": "This resume is a reasonable backend fit, with clear Python API strengths, but it needs stronger deployment and database signals to look more complete.",
+  "strengths": [
+    "Python backend signals are clear.",
+    "Relevant API tooling is present.",
+    "The overall format is easy to scan."
+  ],
+  "risks": [
+    "Docker is still missing as an explicit signal.",
+    "Database depth should be clearer."
+  ],
+  "breakdown": {
+    "keywordCoverage": 71,
+    "sectionScore": 69,
+    "impactScore": 61,
+    "formattingScore": 86,
+    "semanticFit": 73
+  },
+  "audit": {
+    "matchedGroups": [
+      {
+        "title": "Backend Core",
+        "items": [
+          "Python",
+          "FastAPI"
+        ]
+      },
+      {
+        "title": "Cloud Exposure",
+        "items": [
+          "AWS"
+        ]
+      }
+    ],
+    "missingGroups": [
+      {
+        "title": "Infrastructure",
+        "items": [
+          "Docker"
+        ]
+      },
+      {
+        "title": "Database Stack",
+        "items": [
+          "PostgreSQL"
+        ]
+      }
+    ],
+    "quickWins": [
+      "Name Docker explicitly where you used it.",
+      "Show one line of PostgreSQL ownership in a project or experience bullet.",
+      "Add measurable backend impact."
+    ],
+    "finalVerdict": "A solid foundation for backend screening, but still missing a few stack signals that would strengthen shortlisting.",
+    "scoreExplanations": [
+      {
+        "title": "Keyword Coverage",
+        "score": 71,
+        "commentary": "Key backend terms are visible, but stack completeness is not quite there yet."
+      },
+      {
+        "title": "Semantic Fit",
+        "score": 73,
+        "commentary": "The resume reads like a backend profile and broadly aligns with the target role."
+      },
+      {
+        "title": "Section Quality",
+        "score": 69,
+        "commentary": "Section structure is usable, though project framing could be more persuasive."
+      },
+      {
+        "title": "Impact Score",
+        "score": 61,
+        "commentary": "Metrics and ownership language should be strengthened."
+      },
+      {
+        "title": "Formatting",
+        "score": 86,
+        "commentary": "Formatting quality is unlikely to hurt ATS performance."
+      }
+    ],
+    "atsRiskLevel": "Moderate ATS Risk",
+    "summaryHeadline": "Partial Alignment",
+    "priorityGapHeadline": "Priority gaps: Docker, PostgreSQL",
+    "strengthHighlights": [
+      "Strong Python backend positioning.",
+      "FastAPI is a helpful role match.",
+      "Formatting is clear and ATS-friendly."
+    ],
+    "riskHighlights": [
+      "Containerization is missing as a direct keyword.",
+      "Database ownership is not prominent enough."
+    ],
+    "suggestionBullets": [
+      "Add Docker and PostgreSQL project evidence, and include metrics that show reliability, scale, or performance improvements.",
+      "Highlight deployment or infrastructure work more explicitly."
+    ]
+  },
+  "sections": [
+    {
+      "title": "Summary",
+      "score": 66,
+      "commentary": "The summary is directionally correct but could be more targeted.",
+      "highlights": [
+        "Mention backend specialization."
+      ]
+    },
+    {
+      "title": "Skills",
+      "score": 77,
+      "commentary": "Core tools are present, though stack depth is still incomplete.",
+      "highlights": [
+        "Python",
+        "FastAPI",
+        "AWS"
+      ]
+    },
+    {
+      "title": "Projects",
+      "score": 68,
+      "commentary": "Projects help the case, but need more concrete deployment and persistence evidence.",
+      "highlights": [
+        "Add Docker use.",
+        "Add PostgreSQL use."
+      ]
+    },
+    {
+      "title": "Experience Signals",
+      "score": 61,
+      "commentary": "Impact is visible but not yet quantified strongly enough.",
+      "highlights": [
+        "Use more metrics.",
+        "Strengthen ownership phrasing."
+      ]
+    }
+  ],
+  "meta": {
+    "shareUrl": "https://resumeai-abe3m.web.app/results.html?id=102",
+    "generatedForRole": "Backend Developer",
+    "createdAt": "2026-04-02T13:35:00"
+  },
+  "timestamp": "2026-04-02T13:35:00"
 }
