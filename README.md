@@ -10,7 +10,7 @@ AI Resume Analyzer is a full-stack resume scoring and ATS-style review platform 
 - Show matched skills, missing skills, strengths, risks, and score breakdowns
 - Generate advanced AI-oriented audit sections for role targeting
 - Serve both frontend and backend from one FastAPI app
-- Deploy with Render or Docker
+- Deploy with Docker
 
 ## Project Structure
 
@@ -47,12 +47,6 @@ Common keys:
 - `SRA_PUBLIC_APP_URL`
 
 ## Deployment
-
-### Render
-
-This repo includes `render.yaml` at the root. Connect the GitHub repo in Render and set the required environment variables in the Render dashboard.
-
-Set `SRA_PUBLIC_APP_URL` to your deployed frontend URL so share links point to the public site.
 
 ### Docker
 
