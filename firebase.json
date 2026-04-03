@@ -5,6 +5,16 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "ai-resume-analyzer",
+          "region": "us-central1",
+          "pinTag": true
+        }
+      }
     ]
   }
 }
